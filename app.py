@@ -47,7 +47,7 @@ class App:
         # diffusion model
         if "pipe" not in st.session_state["model"].keys():
             self.pipe = DiffusionPipeline.from_pretrained(
-                "runwayml/stable-diffusion-v1-5",
+                "stabilityai/stable-diffusion-2-1",
                 torch_dtype=torch.float16,
             )
             self.pipe = self.pipe.to(self.device + ":0")
@@ -97,15 +97,10 @@ class App:
                     image_np = np.array(st.session_state["app"]["image"])
                     mask, _ = self.sam(
                         image=image_np,
-                        xyxy=np.array(
-                            [st.session_state["app"]["xyxy"]],
-                        ),
+                        xyxy=np.array([st.session_state["app"]["xyxy"]]),
                     )
                     mask = mask.to(torch.int8)
                     mask_np = mask[0][0].cpu().numpy()
-                    print("mask_np:", mask_np.shape, mask_np)
-                    st.session_state["app"]["mask"] = mask_np
-                    st.session_state["app"]["mask_image"] = Image.fromarray(mask_np)
 
                     image_np[mask_np == 0] = 0
                     st.session_state["app"]["image"] = Image.fromarray(image_np)
@@ -118,20 +113,34 @@ class App:
                         st.session_state["app"]["image"].width,
                         st.session_state["app"]["image"].height,
                     )
-                    width_divisible_by_8, height_divisible_by_8 = (width // 8) * 8, (
-                        height // 8
-                    ) * 8
-                    image = st.session_state["app"]["image"]
-                    mask_image = st.session_state["app"]["mask_image"]
+                    #
+                    # SAM to find inpaint area
+                    #
+                    image_np = np.array(st.session_state["app"]["image"])
+                    inpaint_bbox = st.session_state["app"]["xyxy"]
+                    mask, _ = self.sam(
+                        image=image_np,
+                        xyxy=np.array([inpaint_bbox]),
+                    )
+                    mask = mask.to(torch.int8)
+                    mask_np = mask[0][0].cpu().numpy()
+                    mask_np[mask_np == 1] = 255
+                    mask_image = Image.fromarray(mask_np)
+                    mask_image.save("inpaint-mask.png")  
+                    image_source_for_inpaint = st.session_state["app"]["image"]
+                    image_mask_for_inpaint = mask_image
                     inpaint = self.inpaint_pipe(
                         prompt=prompt,
-                        image=image,
-                        mask_image=mask_image,
-                        width=width_divisible_by_8,
-                        height=height_divisible_by_8,
+                        image=image_source_for_inpaint,
+                        mask_image=image_mask_for_inpaint,
+                        width=width,
+                        height=height,
                     ).images[0]
-
+                    inpaint = inpaint.resize(
+                        (width, height)
+                    )  
                     inpaint.save("inpaint.png")
+                    st.session_state["app"]["image"] = inpaint
             #
             # paint
             #
@@ -141,14 +150,7 @@ class App:
                         st.session_state["app"]["image"].width,
                         st.session_state["app"]["image"].height,
                     )
-                    width_divisible_by_8, height_divisible_by_8 = (width // 8) * 8, (
-                        height // 8
-                    ) * 8
-                    paint = self.pipe(
-                        prompt,
-                        width=width_divisible_by_8,
-                        height=height_divisible_by_8,
-                    ).images[0]
+                    paint = self.pipe(prompt, width=width, height=height).images[0]
                     #
                     # Get center of paint
                     #
@@ -200,7 +202,6 @@ class App:
                     for item in paint_data:
                         if item[0] == 0 and item[1] == 0 and item[2] == 0:
                             new_data.append((255, 255, 255, 0))
-                        # convert to transparent image, for color == 0 to transparent, otherwise opaque
                         else:
                             new_data.append(item)
                     paint.putdata(new_data)
@@ -238,8 +239,8 @@ class App:
                     st.session_state["app"]["xywh"]["height"]
                     + st.session_state["app"]["xywh"]["top"],
                 )
-                
-        print("app", st.session_state["app"])
+
+        print("app: ", st.session_state["app"])
         print("=====================================================================")
 
 
