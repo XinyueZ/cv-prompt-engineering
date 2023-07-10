@@ -1,0 +1,9 @@
+__pycache__
+*.mp4
+*.pth
+*ckpt
+*.h5
+*.checkpoint
+tmp/ 
+cfgs/ 
+models/

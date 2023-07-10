@@ -83,15 +83,7 @@ SHELL ["/bin/bash", "-c"]
 
 RUN python3.10 -m pip install --upgrade pip setuptools
  
-# Install FastSAM
-COPY fastsam_setup.py . 
-RUN git clone https://github.com/CASIA-IVA-Lab/FastSAM.git /home/user/FastSAM && \
-    mv fastsam_setup.py /home/user/FastSAM/setup.py && \ 
-    cd /home/user/FastSAM && \
-    python3.10 -m pip install . && \
-    rm setup.py && \
-    cd ..
-
+ 
 # Change working directory
 WORKDIR /workspace
  
@@ -100,5 +92,4 @@ RUN python3.10 -m pip install torch==2.0.0+cu118 torchvision==0.15.1+cu118 --ext
 RUN echo "export CUDA_HOME=/usr/local/cuda-11.8" >> ~/.bashrc
 RUN echo "export PYTORCH_CUDA_ALLOC_CONF='max_split_size_mb:512'" >> ~/.bashrc
 
-RUN python3.10 -m pip install git+https://github.com/openai/CLIP.git
-RUN python3.10 -m pip install diffusers transformers accelerate scipy safetensors streamlit streamlit-image-coordinates streamlit-drawable-canvas streamlit-cropper==0.2.1
+RUN python3.10 -m pip install gdown rich numpy diffusers transformers accelerate scipy safetensors streamlit streamlit-image-coordinates streamlit-drawable-canvas streamlit-cropper==0.2.1
