@@ -8,7 +8,10 @@
 
 The repo is used for studying how to use Prompt Engineering for Computer Vision tasks. 
 
-- Use state-of-art models like diffusion models to generate, inpaint, and paint images.
+- Use state-of-art models like `diffusion` or other baseline models to generate, inpaint, and paint images.
+```bash
+streamlit run basic_app.py --server.port 5555 --server.enableCORS false
+```
 - To-be-continued....
 
 #### Working comments
@@ -34,5 +37,5 @@ docker run --gpus all -v /home/ubuntu/work/cv-prompt-engineering/:/workspace/   
 ## Run
 
 ```bash
-streamlit run app.py --server.port 5555 --server.enableCORS false
+streamlit run basic_app.py --server.port 5555 --server.enableCORS false
 ```
