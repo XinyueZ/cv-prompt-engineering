@@ -1,8 +1,8 @@
 # Prompt Engineering for Computer Vision (experimental)
 
-<div>
+<h4>
 <img src="./assets/basic.gif"   />
-</div>
+</h4>
 
 ## Description
 
