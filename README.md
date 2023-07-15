@@ -12,6 +12,10 @@ The repo is used for studying how to use Prompt Engineering for Computer Vision 
 ```bash
 streamlit run basic_app.py --server.port 5555 --server.enableCORS false
 ```
+- User interaction with Segment Anything Model
+```bash
+streamlit run sam_app.py --server.port 5555 --server.enableCORS false
+```
 - To-be-continued....
 
 #### Working comments

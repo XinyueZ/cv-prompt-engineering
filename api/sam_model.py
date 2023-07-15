@@ -35,12 +35,16 @@ class SamModel:
 
         return self
 
+    def apply_image(self, image):
+        return self.predictor.transform.apply_image(image)
+
     def __call__(self, **kwargs):
         image = kwargs.get("image", None)
         xyxy = kwargs.get("xyxy", None)
         point_coords = kwargs.get("point_coords", None)
         point_labels = kwargs.get("point_labels", None)
-        logits = kwargs.get("logits", None)
+        mask_input = kwargs.get("mask_input", None)
+        return_logits = kwargs.get("return_logits", False)
 
         self.predictor.reset_image()
         self.predictor.set_image(image)
@@ -52,12 +56,19 @@ class SamModel:
             else None
         )
 
+        transformed_coords = (
+            self.predictor.transform.apply_coords_torch(point_coords, image.shape[:2])
+            if point_coords is not None
+            else None
+        )
+
         masks, scores, logits = self.predictor.predict_torch(
-            point_coords=point_coords,
+            point_coords=transformed_coords,
             point_labels=point_labels,
             boxes=transformed_boxes,
             multimask_output=True,
-            mask_input=logits,
+            mask_input=mask_input,
+            return_logits=return_logits,
         )
         if len(masks) == 0:
             return None
