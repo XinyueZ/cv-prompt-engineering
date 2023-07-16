@@ -73,7 +73,7 @@ class App:
                     coords,
                 )
             )  # SAM cannot understand negative coords, so we need to convert them to positive
-            
+
             point_coords = [coords]  # one batch, so (1, n, 2)
             print(
                 f"point_coords: {point_coords}",
@@ -94,7 +94,7 @@ class App:
                 logits=logits,
                 return_logits=False,
             )
-            mask = mask.to(torch.uint8)
+            mask = mask.to(torch.uint8) # (1, 1, W, H)
             mask_np = mask[0][0].cpu().numpy()
             print(
                 f"mask_np: {mask_np}", f"mask_np unique: {np.unique(mask_np)}", sep="\n"

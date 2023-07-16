@@ -1,8 +1,6 @@
 # Prompt Engineering for Computer Vision (experimental)
 
-<h4>
-<img src="./assets/basic.gif"   />
-</h4>
+
 
 ## Description
 
@@ -12,10 +10,18 @@ The repo is used for studying how to use Prompt Engineering for Computer Vision 
 ```bash
 streamlit run basic_app.py --server.port 5555 --server.enableCORS false
 ```
+<h4>
+<img src="./assets/basic.gif"   />
+</h4>
+
 - User interaction with Segment Anything Model
 ```bash
 streamlit run sam_app.py --server.port 5555 --server.enableCORS false
 ```
+<h4>
+<img src="./assets/sam.gif"   />
+</h4>
+
 - To-be-continued....
 
 #### Working comments
