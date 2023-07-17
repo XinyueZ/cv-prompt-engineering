@@ -30,7 +30,9 @@ I personally think that prompting is a new programming approach. Don’t assume 
 
 Here is a prompt I have used the diffusion model in computer vision. Although it has brought some surprises, it is not actually my ultimate goal.
 
-[Blog](https://teetracker.medium.com/ai-new-trend-prompt-engineering-3d7369dcbd86)
+[AI new trend, prompt engineering](https://teetracker.medium.com/ai-new-trend-prompt-engineering-3d7369dcbd86)
+
+[Mouse interactive prompt engineering](https://teetracker.medium.com/mouse-interactive-prompt-engineering-b93573b6e96b)
 
 ## Install via Docker
 
