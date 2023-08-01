@@ -6,7 +6,7 @@
 
 The repo is used for studying how to use Prompt Engineering for Computer Vision tasks. 
 
-- Use state-of-art models like `diffusion` or other baseline models to generate, inpaint, and paint images.
+- Use state-of-art models like `Diffusion` or other baseline models to generate, inpaint, and paint images.
 ```bash
 streamlit run basic_app.py --server.port 5555 --server.enableCORS false
 ```
@@ -22,13 +22,28 @@ streamlit run sam_app.py --server.port 5555 --server.enableCORS false
 <img src="./assets/sam.gif"   />
 </h4>
 
+- Inpaint via user-interaction with `Diffusion` and `SAM`
+```bash
+streamlit run sam_inpaint_app.py --server.port 5555 --server.enableCORS false
+```
+<h4>
+<img src="./assets/sam_inpaint.gif"   />
+</h4>
+
+##### Prompts:
+1. [Van] A Volkswagen California van, parked on a beach, with a surfboard on the roof. 
+2. [Ground] Big grassland, a lot grass, green or grey grass.
+3. [Between sky and ground] Endless grassland. 
+4. [Sky] Clear night sky with stars and full moon. 
+
+
 - To-be-continued....
 
 #### Working comments
 
 I personally think that prompting is a new programming approach. Don’t assume that guiding models with natural language is easy. On the contrary, I believe it’s quite the opposite. Natural language programming lacks the syntax of traditional programming languages, which means there are no type checks or any protective mechanisms in place. If the model (AI) receives an inappropriate prompt, the generated results can be completely different from what was expected.
 
-Here is a prompt I have used the diffusion model in computer vision. Although it has brought some surprises, it is not actually my ultimate goal.
+Here is a prompt I have used the Diffusion model in computer vision. Although it has brought some surprises, it is not actually my ultimate goal.
 
 [AI new trend, prompt engineering](https://teetracker.medium.com/ai-new-trend-prompt-engineering-3d7369dcbd86)
 
