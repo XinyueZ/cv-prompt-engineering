@@ -120,7 +120,7 @@ class App:
         def on_file_uploader_change():
             self._clear()
 
-        uploaded = st.file_uploader("Upload a video", on_change=on_file_uploader_change)
+        uploaded = st.file_uploader("Upload an image", on_change=on_file_uploader_change)
         if uploaded is not None:
             image = Image.open(uploaded)
             image = image.resize((image.size[0], image.size[1]))
