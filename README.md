@@ -30,15 +30,25 @@ streamlit run sam_inpaint_app.py --server.port 5555 --server.enableCORS false
 <img src="./assets/sam_inpaint.gif"   />
 </h4>
 Image src: `assets/van.jpg`
-
 ##### Prompts:
 1. [Van] A Volkswagen California van, parked on a beach, with a surfboard on the roof. 
 2. [Ground] Big grassland, a lot grass, green or grey grass.
 3. [Between sky and ground] Endless grassland. 
 4. [Sky] Clear night sky with stars and full moon. 
 
+- Few-shot of tracking objects via `SAM` in video
 
-- To-be-continued....
+>  Use `SAM` to get mask of the object, use the mask of object to track through all frames.
+
+```bash
+streamlit run sam_tracker.py --server.port 5555 --server.enableCORS false
+```
+
+<h4>
+<img src="./assets/sam_tracker.gif"   />
+</h4>
+
+
 
 #### Working comments
 
