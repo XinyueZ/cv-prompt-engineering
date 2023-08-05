@@ -43,7 +43,7 @@ Image src: `assets/van.jpg`
 ```bash
 streamlit run sam_tracker.py --server.port 5555 --server.enableCORS false
 ```
-
+Video src: https://dl.dropbox.com/s/0lalmh95tylyw4s/sculpture.mp4
 <h4>
 <img src="./assets/sam_tracker.gif"   />
 </h4>
