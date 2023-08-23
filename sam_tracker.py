@@ -150,7 +150,7 @@ class App:
                 ret, frame = cap.read()
                 if not ret:
                     break
-                frame = frame
+                
                 frame = self.sam.apply_image(frame)  # Important for SAM
                 frames.append(frame)
             os.remove(temp_file)
