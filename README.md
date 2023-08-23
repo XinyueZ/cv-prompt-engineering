@@ -29,7 +29,8 @@ streamlit run sam_inpaint_app.py --server.port 5555 --server.enableCORS false
 <h4>
 <img src="./assets/sam_inpaint.gif"   />
 </h4>
-Image src: `assets/van.jpg`
+
+Image `assets/van.jpg`
 
 ##### Prompts:
 1. [Van] A Volkswagen California van, parked on a beach, with a surfboard on the roof. 
