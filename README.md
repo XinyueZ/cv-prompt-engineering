@@ -43,7 +43,7 @@ Image `assets/van.jpg`
 >  Use `SAM` to get mask of the object, use the mask of object to track through all frames.
 
 ```bash
-streamlit run sam_tracker.py --server.port 5555 --server.enableCORS false
+streamlit run sam_tracker.py --server.port 5556 --server.enableCORS false
 ```
 Video src: https://dl.dropbox.com/s/0lalmh95tylyw4s/sculpture.mp4
 <h4>
