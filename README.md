@@ -50,6 +50,15 @@ Video src: https://dl.dropbox.com/s/0lalmh95tylyw4s/sculpture.mp4
 <img src="./assets/sam_tracker.gif"   />
 </h4>
 
+- Few-shot, remove anything you want.
+
+```bash
+streamlit run remove_anything.py --server.port 5556 --server.enableCORS false
+```
+
+Video src: https://dl.dropbox.com/scl/fi/j6a6y23czvlyo2c30vxz2/harbor.mp4
+
+ 
 
 
 #### Working comments
@@ -65,6 +74,10 @@ Here is a prompt I have used the Diffusion model in computer vision. Although it
 ## Install via Docker
 
 ```bash
+
+# submodules
+
+git submodule update --init --recursive
 
 # setup
 docker build --no-cache --tag cv-prompt-engineering -f Dockerfile .

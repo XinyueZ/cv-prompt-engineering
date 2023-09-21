@@ -8,3 +8,5 @@ tmp/
 cfgs/ 
 models/
 /*.png
+/api/ProPainter/inputs
+/api/ProPainter/results

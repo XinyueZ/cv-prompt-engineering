@@ -95,4 +95,5 @@ RUN echo "export PYTORCH_CUDA_ALLOC_CONF='max_split_size_mb:512'" >> ~/.bashrc
 RUN python3.10 -m pip install git+https://github.com/SysCV/sam-hq.git
 RUN python3.10 -m pip install git+https://github.com/IDEA-Research/GroundingDINO.git
 
-RUN python3.10 -m pip install progressbar timm gdown rich numpy diffusers transformers accelerate scipy supervision safetensors streamlit streamlit-image-coordinates streamlit-drawable-canvas streamlit-cropper==0.2.1
+RUN python3.10 -m pip install mmcv-full 
+RUN python3.10 -m pip install progressbar timm gdown rich numpy diffusers transformers accelerate scipy supervision safetensors streamlit streamlit-image-coordinates streamlit-drawable-canvas streamlit-cropper==0.2.1 imageio imageio[ffmpeg] imageio[pyav] einops

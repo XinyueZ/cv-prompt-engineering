@@ -1,0 +1,6 @@
+[submodule "api/Inpaint-Anything"]
+	path = api/Inpaint-Anything
+	url = https://github.com/geekyutao/Inpaint-Anything.git
+[submodule "api/ProPainter"]
+	path = api/ProPainter
+	url = https://github.com/sczhou/ProPainter.git
