@@ -31,6 +31,8 @@ from api.tracker_model import TrackerModel
 
 
 class App:
+    _mask_selection_start_idx: int
+
     def __init__(self, device="cuda"):
         st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
@@ -156,13 +158,22 @@ class App:
             os.remove(temp_file)
             uploaded = None
             st.session_state["app"]["frames"] = frames
-            st.session_state["app"]["image"] = cv2.cvtColor(
-                frames[0], cv2.COLOR_BGR2RGB
-            )
             st.experimental_rerun()
 
         if "image" in st.session_state["app"].keys():
             st.write(f"_frame shape: {st.session_state['app']['image'] .shape}_")
+
+        if "frames" in st.session_state["app"].keys():
+            self._mask_selection_start_idx = st.slider(
+                "Select frame",
+                min_value=0,
+                max_value=len(st.session_state["app"]["frames"]) - 1,
+                value=0,
+                step=1,
+            )
+            st.session_state["app"]["image"] = st.session_state["app"]["frames"][
+                self._mask_selection_start_idx
+            ]
 
         if "image" in st.session_state["app"].keys():
             col1, col2, col3 = st.columns([1, 1, 6])
@@ -221,86 +232,90 @@ class App:
                         ),  # Different color for positive and negative prompts
                         thickness=-1,
                     )
-                src_col, track_cmd_col, tracking_col = st.columns([1, 0.5, 1])
-                with src_col:
-                    new_coord = streamlit_image_coordinates(res_img)
-                with track_cmd_col:
-                    n_remove = st.slider(
-                        "Number of frames to remove target",
-                        min_value=300,
-                        max_value=len(
-                            st.session_state["app"]["frames"],
-                        ),
+
+                new_coord = streamlit_image_coordinates(res_img)
+
+                n_remove = st.slider(
+                    "Number of frames to remove target",
+                    min_value=300,
+                    max_value=len(
+                        st.session_state["app"]["frames"],
+                    ),
+                )
+                if (
+                    st.button("Track")
+                    and "template_mask" in st.session_state["app"].keys()
+                ):
+                    st.info("Tracking...")
+                    self.tracker.clear_memory()
+                    masks, _, painted_images = self.tracker(
+                        st.session_state["app"]["frames"][self._mask_selection_start_idx :],
+                        st.session_state["app"]["template_mask"],
                     )
-                    if (
-                        st.button("Track")
-                        and "template_mask" in st.session_state["app"].keys()
-                    ):
-                        st.info("Tracking...")
-                        self.tracker.clear_memory()
-                        masks, _, painted_images = self.tracker(
-                            st.session_state["app"]["frames"],
-                            st.session_state["app"]["template_mask"],
+
+                    tracker_output_painted_img_dir = "./api/ProPainter/inputs/object_removal/sam_tracker_output/tracker"
+                    tracker_output_mask_dir = "./api/ProPainter/inputs/object_removal/sam_tracker_output/tracker_mask"
+                    os.system(f"rm -rf {tracker_output_painted_img_dir}")
+                    os.system(f"rm -rf {tracker_output_mask_dir}")
+                    os.makedirs(tracker_output_painted_img_dir)
+                    os.makedirs(tracker_output_mask_dir)
+                    runner = tqdm(enumerate(zip(masks, painted_images)))
+                    for i, (mask, painted_image) in runner:
+                        if i > n_remove:
+                            break
+
+                        cv2.imwrite(
+                            os.path.join(
+                                tracker_output_painted_img_dir,
+                                f"{str(i).zfill(6)}.png",
+                            ),
+                            painted_image,
                         )
-
-                        tracker_output_painted_img_dir = "./api/ProPainter/inputs/object_removal/sam_tracker_output/tracker"
-                        tracker_output_mask_dir = "./api/ProPainter/inputs/object_removal/sam_tracker_output/tracker_mask"
-                        os.system(f"rm -rf {tracker_output_painted_img_dir}")
-                        os.system(f"rm -rf {tracker_output_mask_dir}")
-                        os.makedirs(tracker_output_painted_img_dir)
-                        os.makedirs(tracker_output_mask_dir)
-                        runner = tqdm(enumerate(zip(masks, painted_images)))
-                        for i, (mask, painted_image) in runner:
-                            if i > n_remove:
-                                break
-                            cv2.imwrite(
-                                os.path.join(
-                                    tracker_output_painted_img_dir,
-                                    f"painted_image_{i}.png",
-                                ),
-                                painted_image,
-                            )
-                            cv2.imwrite(
-                                os.path.join(tracker_output_mask_dir, f"mask_{i}.png"),
-                                mask,
-                            )
-                        self.tracker.clear_memory()
-                        st.info("Tracked")
-
-                        st.info("Saving video...")
-                        video_wr = VideoWriter(out_dir="./", name="sam_tracker")
-                        runner = tqdm(
-                            enumerate(
-                                zip(st.session_state["app"]["frames"], painted_images)
-                            )
+                        cv2.imwrite(
+                            os.path.join(
+                                tracker_output_mask_dir, f"{str(i).zfill(6)}.png"
+                            ),
+                            mask,
                         )
-                        for i, (frame, painted_image) in runner:
-                            if i > n_remove:
-                                break
-                            # Horizontally concatenate images
-                            output_height = frame.shape[0]
-                            output_width = int(
-                                output_height
-                                * painted_image.shape[1]
-                                / painted_image.shape[0]
-                            )
-                            img1 = cv2.resize(frame, (output_width, output_height))
-                            img2 = cv2.resize(
-                                painted_image, (output_width, output_height)
-                            )
-                            image_postprocessed = cv2.hconcat([img1, img2])
-                            video_wr(image_postprocessed)
+                    self.tracker.clear_memory()
+                    st.info("Tracked")
 
-                        video_wr.release()
-                        st.video(video_wr.out)
-                        # os.remove(video_name)
-                        st.info(f"Video ({video_wr.out}) saved")
-                        with open(video_wr.out, "rb") as file:
-                            st.download_button(
-                                label="Download", data=file, file_name=video_wr.fn
-                            )
-                with tracking_col:
-                    pass
+                    st.info("Saving video...")
+                    painted_images = (
+                        st.session_state["app"]["frames"][
+                            : self._mask_selection_start_idx
+                        ]
+                        + painted_images
+                    )
+                    video_wr = VideoWriter(out_dir="./", name="sam_tracker")
+                    runner = tqdm(
+                        enumerate(
+                            zip(st.session_state["app"]["frames"], painted_images)
+                        )
+                    )
+                    for i, (frame, painted_image) in runner:
+                        if i > n_remove:
+                            break
+                        # Horizontally concatenate images
+                        output_height = frame.shape[0]
+                        output_width = int(
+                            output_height
+                            * painted_image.shape[1]
+                            / painted_image.shape[0]
+                        )
+                        img1 = cv2.resize(frame, (output_width, output_height))
+                        img2 = cv2.resize(painted_image, (output_width, output_height))
+                        image_postprocessed = cv2.hconcat([img1, img2])
+                        video_wr(image_postprocessed)
+
+                    video_wr.release()
+                    st.video(video_wr.out)
+                    # os.remove(video_name)
+                    st.info(f"Video ({video_wr.out}) saved")
+                    with open(video_wr.out, "rb") as file:
+                        st.download_button(
+                            label="Download", data=file, file_name=video_wr.fn
+                        )
 
             if new_coord is not None:
                 new_coord = [new_coord["x"], new_coord["y"]]

@@ -31,6 +31,8 @@ from api.tracker_model import TrackerModel
 
 
 class App:
+    _mask_selection_start_idx: int
+
     def __init__(self, device="cuda"):
         st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
@@ -150,16 +152,25 @@ class App:
                 ret, frame = cap.read()
                 if not ret:
                     break
-                
+
                 frame = self.sam.apply_image(frame)  # Important for SAM
                 frames.append(frame)
             os.remove(temp_file)
             uploaded = None
             st.session_state["app"]["frames"] = frames
-            st.session_state["app"]["image"] = cv2.cvtColor(
-                frames[0], cv2.COLOR_BGR2RGB
-            )
             st.experimental_rerun()
+
+        if "frames" in st.session_state["app"].keys():
+            self._mask_selection_start_idx = st.slider(
+                "Select frame",
+                min_value=0,
+                max_value=len(st.session_state["app"]["frames"]) - 1,
+                value=0,
+                step=1,
+            )
+            st.session_state["app"]["image"] = st.session_state["app"]["frames"][
+                self._mask_selection_start_idx
+            ]
 
         if "image" in st.session_state["app"].keys():
             col1, col2, col3 = st.columns([1, 1, 6])
@@ -218,54 +229,57 @@ class App:
                         ),  # Different color for positive and negative prompts
                         thickness=-1,
                     )
-                src_col, track_cmd_col, tracking_col = st.columns([1, 0.5, 1])
-                with src_col:
-                    new_coord = streamlit_image_coordinates(res_img)
-                with track_cmd_col:
-                    if (
-                        st.button("Track")
-                        and "template_mask" in st.session_state["app"].keys()
-                    ):
-                        st.info("Tracking...")
-                        self.tracker.clear_memory()
-                        _, _, painted_images = self.tracker(
-                            st.session_state["app"]["frames"],
-                            st.session_state["app"]["template_mask"],
+
+                new_coord = streamlit_image_coordinates(res_img)
+
+                if (
+                    st.button("Track")
+                    and "template_mask" in st.session_state["app"].keys()
+                ):
+                    st.info("Tracking...")
+                    self.tracker.clear_memory()
+                    _, _, painted_images = self.tracker(
+                        st.session_state["app"]["frames"][
+                            self._mask_selection_start_idx :
+                        ],
+                        st.session_state["app"]["template_mask"],
+                    )
+                    self.tracker.clear_memory()
+                    st.info("Tracked")
+
+                    st.info("Saving video...")
+                    painted_images = (
+                        st.session_state["app"]["frames"][
+                            : self._mask_selection_start_idx
+                        ]
+                        + painted_images
+                    )
+                    video_wr = VideoWriter(out_dir="./", name="sam_tracker")
+                    runner = tqdm(
+                        zip(st.session_state["app"]["frames"], painted_images)
+                    )
+                    for frame, painted_image in runner:
+                        # Horizontally concatenate images
+                        output_height = frame.shape[0]
+                        output_width = int(
+                            output_height
+                            * painted_image.shape[1]
+                            / painted_image.shape[0]
                         )
-                        self.tracker.clear_memory()
-                        st.info("Tracked")
+                        img1 = cv2.resize(frame, (output_width, output_height))
+                        img2 = cv2.resize(painted_image, (output_width, output_height))
 
-                        st.info("Saving video...")
-                        video_wr = VideoWriter(out_dir="./", name="sam_tracker")
-                        runner = tqdm(
-                            zip(st.session_state["app"]["frames"], painted_images)
+                        image_postprocessed = cv2.hconcat([img1, img2])
+                        video_wr(image_postprocessed)
+
+                    video_wr.release()
+                    st.video(video_wr.out)
+                    # os.remove(video_name)
+                    st.info(f"Video ({video_wr.out}) saved")
+                    with open(video_wr.out, "rb") as file:
+                        st.download_button(
+                            label="Download", data=file, file_name=video_wr.fn
                         )
-                        for frame, painted_image in runner:
-                            # Horizontally concatenate images
-                            output_height = frame.shape[0]
-                            output_width = int(
-                                output_height
-                                * painted_image.shape[1]
-                                / painted_image.shape[0]
-                            )
-                            img1 = cv2.resize(frame, (output_width, output_height))
-                            img2 = cv2.resize(
-                                painted_image, (output_width, output_height)
-                            )
-
-                            image_postprocessed = cv2.hconcat([img1, img2])
-                            video_wr(image_postprocessed)
-
-                        video_wr.release()
-                        st.video(video_wr.out)
-                        # os.remove(video_name)
-                        st.info(f"Video ({video_wr.out}) saved")
-                        with open(video_wr.out, "rb") as file:
-                            st.download_button(
-                                label="Download", data=file, file_name=video_wr.fn
-                            )
-                with tracking_col:
-                    pass
 
             if new_coord is not None:
                 new_coord = [new_coord["x"], new_coord["y"]]

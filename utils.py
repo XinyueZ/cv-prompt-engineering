@@ -73,7 +73,7 @@ class VideoWriter:
         if self.output_file is None:
             height, width, _ = frame.shape
             self.output_file = cv2.VideoWriter(
-                self.out, cv2.VideoWriter_fourcc(*"mp4v"), 20.0, (width, height)
+                self.out, cv2.VideoWriter_fourcc(*"XVID"), 10.0, (width, height)
             )
         self.output_file.write(frame)
 
