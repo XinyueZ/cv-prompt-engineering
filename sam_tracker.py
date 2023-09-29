@@ -170,7 +170,10 @@ class App:
             )
             st.session_state["app"]["image"] = st.session_state["app"]["frames"][
                 self._mask_selection_start_idx
-            ]
+            ] 
+            st.session_state["app"]["image"] = cv2.cvtColor(
+                st.session_state["app"]["image"], cv2.COLOR_BGR2RGB
+            )
 
         if "image" in st.session_state["app"].keys():
             col1, col2, col3 = st.columns([1, 1, 6])
