@@ -30,7 +30,7 @@ from tqdm import tqdm
 
 class App:
     def __init__(self, device="cuda"):
-        st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
+        st.set_page_config(layout="wide")
 
         self.device = device
 
@@ -120,7 +120,7 @@ class App:
         def on_file_uploader_change():
             self._clear()
 
-        uploaded = st.file_uploader("Upload an image", on_change=on_file_uploader_change)
+        uploaded = st.sidebar.file_uploader("Upload an image", on_change=on_file_uploader_change)
         if uploaded is not None:
             image = Image.open(uploaded)
             image = image.resize((image.size[0], image.size[1]))
@@ -133,7 +133,7 @@ class App:
                 #
                 # Label selection
                 #
-                with st.container():
+                with st.sidebar.container():
 
                     def on_label_radios_change():
                         print(f"label changed: {st.session_state['label_radios']}")
@@ -144,7 +144,7 @@ class App:
                         # for the new label
                         st.session_state["app"]["coords"].append(list())
 
-                    st.radio(
+                    st.sidebar.radio(
                         "Labels, click `New mask` to start a new mask otherwise the multi-clicking is for ONLY-ONE mask, `Clear` to clear all.",
                         ["Positive", "Negative"],
                         index=0,
@@ -153,8 +153,8 @@ class App:
                         horizontal=True,
                     )
             with col2:
-                st.write("")
-                if st.button("New mask"):
+                st.sidebar.write("")
+                if st.sidebar.button("New mask"):
                     if "coords" not in st.session_state["app"].keys():
                         st.session_state["app"]["coords"] = []
                     st.session_state["app"]["coords"].append([])
@@ -162,8 +162,8 @@ class App:
                 #
                 # Clean every thing
                 #
-                st.write("")
-                if st.button("Clear"):
+                st.sidebar.write("")
+                if st.sidebar.button("Clear"):
                     self._clear()
             #
             # Clickable image, draw the image
@@ -213,7 +213,7 @@ class App:
                         list(map(lambda xy: xy * -1, new_coord))
                     )
                 # Gen mask
-                image_np, applied_point_coords, mask_nps = self._gen_mask()
+                image_np, applied_point_coords, mask_nps = self._gen_mask() 
                 # print(f"mask_nps.shape", mask_nps.shape)
                 detections = Detections(xyxy=mask_to_xyxy(mask_nps), mask=mask_nps)
                 mask_annotator = sv.MaskAnnotator()
