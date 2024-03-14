@@ -1,4 +1,4 @@
-# Prompt Engineering for Computer Vision (experimental)
+# Awesome Computer Vision Prompting
 
 
 
