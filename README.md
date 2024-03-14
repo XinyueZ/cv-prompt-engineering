@@ -6,7 +6,7 @@
 
 The repo is used for studying how to use Prompt Engineering for Computer Vision tasks. 
 
-- Use state-of-art models like `Diffusion` or other baseline models to generate, inpaint, and paint images.
+### Use state-of-art models like `Diffusion` or other baseline models to generate, inpaint, and paint images.
 ```bash
 streamlit run basic_app.py --server.port 5555 --server.enableCORS false
 ```
@@ -14,7 +14,7 @@ streamlit run basic_app.py --server.port 5555 --server.enableCORS false
 <img src="./assets/basic.gif"   />
 </h4>
 
-- User interaction with Segment Anything Model
+### User interaction with Segment Anything Model
 ```bash
 streamlit run sam_app.py --server.port 5555 --server.enableCORS false
 ```
@@ -22,7 +22,7 @@ streamlit run sam_app.py --server.port 5555 --server.enableCORS false
 <img src="./assets/sam.gif"   />
 </h4>
 
-- Inpaint via user-interaction with `Diffusion` and `SAM`
+### Inpaint via user-interaction with `Diffusion` and `SAM`
 ```bash
 streamlit run sam_inpaint_app.py --server.port 5555 --server.enableCORS false
 ```
@@ -38,7 +38,7 @@ Image `assets/van.jpg`
 3. [Between sky and ground] Endless grassland. 
 4. [Sky] Clear night sky with stars and full moon. 
 
-- Few-shot of tracking objects via `SAM` in video
+### Few-shot of tracking objects via `SAM` in video
 
 >  Use `SAM` to get mask of the object, use the mask of object to track through all frames.
 
@@ -62,7 +62,7 @@ Here is a prompt I have used the Diffusion model in computer vision. Although it
 
 [Mouse interactive prompt engineering](https://teetracker.medium.com/mouse-interactive-prompt-engineering-b93573b6e96b)
 
-## Install via Docker
+### Install via Docker
 
 ```bash
 
@@ -74,7 +74,7 @@ docker run --gpus all -v /home/ubuntu/work/cv-prompt-engineering/:/workspace/   
 
 ```
 
-## Run
+### Run
 
 ```bash
 streamlit run basic_app.py --server.port 5555 --server.enableCORS false
